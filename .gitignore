@@ -104,3 +104,6 @@ venv.bak/
 .mypy_cache/
 
 /data/snli_1.0/
+/.word_vectors_cache/
+/data/__MACOSX/
+/data/glove/
