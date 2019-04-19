@@ -51,7 +51,9 @@ class PlotHelper():
                  color='tomato', label='dev loss')
         plt.draw()
         plt.pause(0.001)
-        # plt.savefig(f'results/mlp-numpy/result-{current_step}.png')
+        
+    def save_plot(self, path):
+        plt.savefig(path)
 
     def _initialize_plot(self):
         plt.figure(1)

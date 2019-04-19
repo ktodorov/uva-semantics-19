@@ -56,9 +56,11 @@ statistics_helper = StatisticsHelper(train_batches_size=len(train_iterator))
 statistics_helper.print_header()
 
 plot_helper = PlotHelper()
+epoch = 0
+current_learning_rate = parameters_helper.learning_rate
 
 # Start the training
-for epoch in range(parameters_helper.max_epochs):
+while current_learning_rate > 1e-5 and epoch < parameters_helper.max_epochs:
     train_iterator.init_epoch()
     n_correct, n_total = 0, 0
 
@@ -137,6 +139,11 @@ for epoch in range(parameters_helper.max_epochs):
                 best_dev_accuracy = dev_accuracy
                 cache_storage.save_best_snapshot(
                     model, iterations, dev_accuracy, dev_loss.item())
+            else:
+                current_learning_rate /= 5.0
+
+                for g in optimizer.param_groups:
+                    g['lr'] = current_learning_rate
 
         # Output statistics periodically
         elif iterations % parameters_helper.log_every_steps == 0:
@@ -148,3 +155,7 @@ for epoch in range(parameters_helper.max_epochs):
                 train_accuracy_normalized)
 
         iterations += 1
+
+    epoch += 1
+
+plot_helper.save_plot(f'results/{parameters_helper.encoding_model}/result-final.png')
