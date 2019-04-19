@@ -9,6 +9,7 @@ from helpers.calculations_helper import CalculationsHelper
 from helpers.cache_storage import CacheStorage
 from helpers.data_storage import DataStorage
 from helpers.parameters_helper import ParametersHelper
+from helpers.plot_helper import PlotHelper
 from helpers.statistics_helper import StatisticsHelper
 
 from snli_classifier import SNLIClassifier
@@ -54,6 +55,8 @@ print('Starting training...')
 statistics_helper = StatisticsHelper(train_batches_size=len(train_iterator))
 statistics_helper.print_header()
 
+plot_helper = PlotHelper()
+
 # Start the training
 for epoch in range(parameters_helper.max_epochs):
     train_iterator.init_epoch()
@@ -67,8 +70,6 @@ for epoch in range(parameters_helper.max_epochs):
         # Clear gradient accumulators
         optimizer.zero_grad()
 
-        iterations += 1
-
         # Make the forward pass
         train_predictions = model(batch)
 
@@ -77,11 +78,15 @@ for epoch in range(parameters_helper.max_epochs):
             train_predictions, batch.label)
 
         n_total += batch.batch_size
-        train_accuracy = calculations_helper.calculate_accuracy(
+        train_accuracy = calculations_helper.calculate_full_accuracy(
+            train_predictions, batch.label)
+
+        train_accuracy_normalized = calculations_helper.calculate_accuracy(
             n_correct, n_total)
 
         # calculate loss of the network output with respect to training labels
         train_loss = criterion(train_predictions, batch.label)
+        plot_helper.add_train_result(train_accuracy, train_loss.item())
 
         # Make the backward pass
         train_loss.backward()
@@ -92,7 +97,7 @@ for epoch in range(parameters_helper.max_epochs):
         # Cache model
         if iterations % parameters_helper.save_every_steps == 0:
             cache_storage.save_snapshot(
-                model, iterations, train_accuracy, train_loss.item())
+                model, iterations, train_accuracy_normalized, train_loss.item())
 
         # Evaluate performance on the dev set periodically
         if iterations % parameters_helper.evaluate_every_steps == 0:
@@ -119,11 +124,14 @@ for epoch in range(parameters_helper.max_epochs):
                 iterations,
                 batch_idx,
                 train_loss.item(),
-                train_accuracy,
+                train_accuracy_normalized,
                 dev_loss.item(),
                 dev_accuracy)
 
-            # Update best dev set accuracy if we have 
+            plot_helper.add_dev_result(dev_accuracy, dev_loss.item())
+            plot_helper.update_plot()
+
+            # Update best dev set accuracy if we have
             # found a model with a better dev set accuracy
             if dev_accuracy > best_dev_accuracy:
                 best_dev_accuracy = dev_accuracy
@@ -137,4 +145,6 @@ for epoch in range(parameters_helper.max_epochs):
                 iterations,
                 batch_idx,
                 train_loss.item(),
-                train_accuracy)
+                train_accuracy_normalized)
+
+        iterations += 1
