@@ -2,13 +2,15 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 
-from calculations_helper import CalculationsHelper
-from cache_storage import CacheStorage
-from data_storage import DataStorage
 from encoders.mean_encoder import MeanEncoder
+
+from helpers.calculations_helper import CalculationsHelper
+from helpers.cache_storage import CacheStorage
+from helpers.data_storage import DataStorage
+from helpers.parameters_helper import ParametersHelper
+from helpers.statistics_helper import StatisticsHelper
+
 from model import SNLIClassifier
-from parameters_helper import ParametersHelper
-from statistics_helper import StatisticsHelper
 
 calculations_helper = CalculationsHelper()
 
