@@ -1,53 +1,48 @@
-from torchnlp.datasets import snli_dataset
+from torchtext import data, datasets
 
-from torchnlp.encoders import LabelEncoder
-from torchnlp.encoders.text import WhitespaceEncoder
-
-from torchnlp.word_to_vector import GloVe
 
 class DataStorage:
     def __init__(self):
-        self.train_set = None
-        self.dev_set = None
-        self.test_set = None
+        self.text_field = data.Field(
+            lower=False,
+            tokenize=lambda x: x.split(),
+            include_lengths=True,
+            use_vocab=True)
+            
+        self.label_field = data.Field(
+            sequential=False,
+            use_vocab=True,
+            pad_token=None,
+            unk_token=None,
+            batch_first=None)
 
-        self.train_encoder = None
-        self.dev_encoder = None
-        self.test_encoder = None
+        self.train_split, self.dev_split, self.test_split = datasets.SNLI.splits(self.text_field, self.label_field)
 
-    def get_snli_encoders(self, data_cap: int = None):
-        if not self.train_set or not self.dev_set or not not self.test_set:
-            self._load_data_sets(data_cap)
-
-        self.train_encoder = WhitespaceEncoder(
-            [row['premise'] for row in self._dataset_iterator(self.train_set)] + [row['hypothesis'] for row in self._dataset_iterator(self.train_set)])
-
-        return self.train_encoder
-
-    def get_label_encoder(self, data_cap: int = None):
-        if not self.train_set or not self.dev_set or not not self.test_set:
-            self._load_data_sets(data_cap)
+    def get_vocabulary(self, vectors_name='glove.840B.300d'):
+        self.text_field.build_vocab(self.train_split, self.dev_split, self.test_split)
         
-        self.train_labels = [row['label'] for row in self._dataset_iterator(self.train_set)]
-        self.train_label_encoder = LabelEncoder(self.train_labels)
+        
+        # if os.path.isfile(args.vector_cache):
+        #     inputs.vocab.vectors = torch.load(args.vector_cache)
+        # else:
+        # makedirs(os.path.dirname(args.vector_cache))
+        # torch.save(inputs.vocab.vectors, args.vector_cache)
+        self.text_field.vocab.load_vectors(vectors_name)
+        self.label_field.build_vocab(self.train_split)
 
-        return self.train_label_encoder
+        return self.text_field.vocab, self.label_field.vocab
 
-    def get_vocabulary(self, word_tokens):
-        glove_vectors = GloVe()
+    def get_dataset_iterators(self, batch_size):
+        train_iterator, dev_iterator, test_iterator = data.BucketIterator.splits(
+            (self.train_split, self.dev_split, self.test_split), batch_size=batch_size)  # , device=device)
 
-        vocabulary = {wt: glove_vectors[wt] for wt in word_tokens.vocab}
-        return vocabulary
+        return train_iterator, dev_iterator, test_iterator
 
-    def _load_data_sets(self, data_cap: int=None):
-        self.train_set, self.dev_set, self.test_set = snli_dataset(
-            train=True, dev=True, test=True)
+    def get_train_split_size(self) -> int:
+        return len(self.train_split)
 
-        if data_cap:
-            self.train_set = self.train_set[0:data_cap]
-            self.dev_set = self.dev_set[0:data_cap]
-            self.test_set = self.test_set[0:data_cap]
-
-    def _dataset_iterator(self, dataset):
-        for row in dataset:
-            yield row
+    def get_dev_split_size(self) -> int:
+        return len(self.dev_split)
+        
+    def get_test_split_size(self) -> int:
+        return len(self.test_split)
