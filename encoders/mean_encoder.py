@@ -1,8 +1,8 @@
 import torch
-import torch.nn as nn
+from encoders.base_encoder import BaseEncoder
 
 
-class MeanEncoder(nn.Module):
+class MeanEncoder(BaseEncoder):
     def __init__(self):
         super(MeanEncoder, self).__init__()
 

@@ -2,7 +2,8 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 
-from encoders.mean_encoder import MeanEncoder
+# from encoders.mean_encoder import MeanEncoder
+from encoders.encoding_helper import EncodingHelper
 
 from helpers.calculations_helper import CalculationsHelper
 from helpers.cache_storage import CacheStorage
@@ -22,6 +23,7 @@ parameters_helper.print_arguments()
 torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
 # Load the data sets and the vocabulary
+print('Loading data...')
 data_storage = DataStorage()
 
 token_vocabulary, _ = data_storage.get_vocabulary()
@@ -32,9 +34,11 @@ dev_split_size = data_storage.get_dev_split_size()
 # Check if we can get a cached model. If not, create a new one
 cache_storage = CacheStorage()
 
+print('Loading model...')
 model = cache_storage.load_model_snapshot(parameters_helper.snapshot_location)
 if not model:
-    encoder = MeanEncoder()
+    encoding_helper = EncodingHelper()
+    encoder = encoding_helper.get_encoder(parameters_helper.encoding_model)
     model = SNLIClassifier(len(token_vocabulary), 300,
                            encoder, token_vocabulary)
 
@@ -45,11 +49,13 @@ optimizer = optim.Adam(model.parameters())  # learning rate
 iterations = 0
 best_dev_accuracy = -1
 
+print('Starting training...')
+
 statistics_helper = StatisticsHelper(train_batches_size=len(train_iterator))
 statistics_helper.print_header()
 
 # Start the training
-for epoch in range(1):
+for epoch in range(parameters_helper.max_epochs):
     train_iterator.init_epoch()
     n_correct, n_total = 0, 0
 
