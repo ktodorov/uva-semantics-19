@@ -17,6 +17,13 @@ class CacheStorage():
 
         pass
 
+    def load_model_snapshot(self, path: str):
+        if not path:
+            return None
+            
+        model = torch.load(path, map_location=lambda storage, location: storage.cuda())
+        return model
+
     def save_snapshot(
             self,
             model,
