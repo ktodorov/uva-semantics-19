@@ -11,7 +11,7 @@ from helpers.data_storage import DataStorage
 from helpers.parameters_helper import ParametersHelper
 from helpers.statistics_helper import StatisticsHelper
 
-from model import SNLIClassifier
+from snli_classifier import SNLIClassifier
 
 calculations_helper = CalculationsHelper()
 
@@ -32,7 +32,7 @@ train_iterator, dev_iterator, test_iterator = data_storage.get_dataset_iterators
 dev_split_size = data_storage.get_dev_split_size()
 
 # Check if we can get a cached model. If not, create a new one
-cache_storage = CacheStorage()
+cache_storage = CacheStorage(parameters_helper.encoding_model)
 
 print('Loading model...')
 model = cache_storage.load_model_snapshot(parameters_helper.snapshot_location)

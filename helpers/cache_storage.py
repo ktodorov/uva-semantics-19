@@ -1,12 +1,15 @@
 import os
+import errno
 import glob
 
 import torch
 
 
 class CacheStorage():
-    def __init__(self):
-        self.save_path = 'results'
+    def __init__(self, encoding_model: str):
+        self.save_path = f'results\\{encoding_model}'
+        
+        self.validate_folder(self.save_path)
 
         self.snapshot_prefix = os.path.join(self.save_path, 'snapshot')
         self.snapshot_template = '_acc_{:.4f}_loss_{:.6f}_iter_{}_model.pt'
@@ -14,6 +17,7 @@ class CacheStorage():
         self.best_snapshot_prefix = os.path.join(
             self.save_path, 'best_snapshot')
         self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model.pt'
+        self.encoding_model = encoding_model
 
         pass
 
@@ -55,3 +59,14 @@ class CacheStorage():
         for f in glob.glob(self.best_snapshot_prefix + '*'):
             if f != snapshot_path:
                 os.remove(f)
+
+    def validate_folder(self, name):
+        try:
+            os.makedirs(name)
+        except OSError as ex:
+            if ex.errno == errno.EEXIST and os.path.isdir(name):
+                # ignore existing directory
+                pass
+            else:
+                # a different error happened
+                raise

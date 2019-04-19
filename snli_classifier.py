@@ -1,12 +1,22 @@
 import torch
 import torch.nn as nn
 
+from encoders.base_encoder import BaseEncoder
+
 
 class SNLIClassifier(nn.Module):
 
-    def __init__(self, n_embed, d_out, encoder, vocabulary=None):
+    def __init__(
+            self,
+            n_embed: int,
+            d_out: int,
+            encoder: BaseEncoder,
+            vocabulary=None,
+            n_hidden: int = 512,
+            n_classes: int = 3):
+
         super(SNLIClassifier, self).__init__()
-        
+
         self.embed = nn.Embedding(n_embed, d_out)
 
         if vocabulary:
@@ -15,9 +25,9 @@ class SNLIClassifier(nn.Module):
         self.encoder = encoder
 
         self.out = nn.Sequential(
-            nn.Linear(4*300, 512),
+            nn.Linear(encoder.input_dimensions, n_hidden),
             nn.Tanh(),
-            nn.Linear(512, 3))
+            nn.Linear(n_hidden, n_classes))
 
     def forward(self, batch):
         premise, premise_length = batch.premise
@@ -31,10 +41,12 @@ class SNLIClassifier(nn.Module):
         hypothesis_encoded = self.encoder.forward(
             hypothesis_embedding, hypothesis_length)
 
+        # (u, v, |u - v|, u*v)
         absolute_diff = (premise_encoded - hypothesis_encoded).abs()
         multiplication = (premise_encoded * hypothesis_encoded)
         input_embedding = torch.cat(
             (premise_encoded, hypothesis_encoded, absolute_diff, multiplication), 1)
 
         scores = self.out(input_embedding)
+
         return scores

@@ -6,6 +6,8 @@ class MeanEncoder(BaseEncoder):
     def __init__(self):
         super(MeanEncoder, self).__init__()
 
+        self._input_dimensions = 4*300
+
     def forward(self, x, x_len):
         out = torch.sum(x, dim=0) / x_len.view(-1, 1).to(torch.float)
 
