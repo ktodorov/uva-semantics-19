@@ -18,6 +18,8 @@ from snli_classifier import SNLIClassifier
 
 calculations_helper = CalculationsHelper()
 
+minimum_learning_rate = 1e-5
+
 # Load input arguments
 parameters_helper = ParametersHelper()
 parameters_helper.load_arguments()
@@ -66,7 +68,7 @@ epoch = 0
 current_learning_rate = parameters_helper.learning_rate
 
 # Start the training
-while current_learning_rate > 1e-5 and epoch < parameters_helper.max_epochs:
+while current_learning_rate > minimum_learning_rate and epoch < parameters_helper.max_epochs:
     train_iterator.init_epoch()
     n_correct, n_total = 0, 0
 
@@ -148,6 +150,9 @@ while current_learning_rate > 1e-5 and epoch < parameters_helper.max_epochs:
             elif dev_accuracy < best_dev_accuracy:
                 print('Reducing learning rate...')
                 current_learning_rate /= 5.0
+                if current_learning_rate < minimum_learning_rate:
+                    print (f'Learning rate dropped below the minimum one({minimum_learning_rate}). Stopping training...')
+                    break
 
                 for g in optimizer.param_groups:
                     g['lr'] = current_learning_rate

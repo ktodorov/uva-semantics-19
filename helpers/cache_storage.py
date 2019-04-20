@@ -19,8 +19,6 @@ class CacheStorage():
         self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model{}.pt'
         self.encoding_model = encoding_model
 
-        pass
-
     def load_model_snapshot(self, path: str):
         if not path:
             return None
@@ -43,11 +41,13 @@ class CacheStorage():
             self.snapshot_template.format(
                 train_accuracy, train_loss, iteration, '.enc')
 
+        # save model
         torch.save(model, snapshot_path)
         torch.save(model.encoder.state_dict(), snapshot_encoder_path)
 
+        # delete previous 'best_snapshot' files
         for f in glob.glob(self.snapshot_prefix + '*'):
-            if f != snapshot_path:
+            if f != snapshot_path and f != snapshot_encoder_path:
                 os.remove(f)
 
     def save_best_snapshot(
@@ -65,12 +65,13 @@ class CacheStorage():
             self.snapshot_template.format(
                 dev_accuracy, dev_loss, iteration, '.enc')
 
-        # save model, delete previous 'best_snapshot' files
+        # save model
         torch.save(model, snapshot_path)
         torch.save(model.encoder.state_dict(), snapshot_encoder_path)
 
+        # delete previous 'best_snapshot' files
         for f in glob.glob(self.best_snapshot_prefix + '*'):
-            if f != snapshot_path:
+            if f != snapshot_path and f != snapshot_encoder_path:
                 os.remove(f)
 
     def validate_folder(self, name):
