@@ -1,3 +1,5 @@
+import numpy as np
+
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -21,7 +23,8 @@ parameters_helper = ParametersHelper()
 parameters_helper.load_arguments()
 parameters_helper.print_arguments()
 
-torch.set_default_tensor_type('torch.cuda.FloatTensor')
+# torch.set_default_tensor_type('torch.cuda.FloatTensor')
+device = torch.device("cuda:0")
 
 # Load the data sets and the vocabulary
 print('Loading data...')
@@ -29,7 +32,7 @@ data_storage = DataStorage()
 
 token_vocabulary, _ = data_storage.get_vocabulary()
 train_iterator, dev_iterator, test_iterator = data_storage.get_dataset_iterators(
-    parameters_helper.batch_size)
+    parameters_helper.batch_size, device)
 dev_split_size = data_storage.get_dev_split_size()
 
 # Check if we can get a cached model. If not, create a new one
@@ -41,11 +44,14 @@ if not model:
     encoding_helper = EncodingHelper()
     encoder = encoding_helper.get_encoder(parameters_helper.encoding_model)
     model = SNLIClassifier(len(token_vocabulary), 300,
-                           encoder, token_vocabulary)
+                           encoder, token_vocabulary).to(device)
 
 # Initialize the loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters())  # learning rate
+optimizer = optim.SGD(
+    model.parameters(),
+    lr=parameters_helper.learning_rate,
+    weight_decay=parameters_helper.weight_decay)
 
 iterations = 0
 best_dev_accuracy = -1
@@ -139,7 +145,8 @@ while current_learning_rate > 1e-5 and epoch < parameters_helper.max_epochs:
                 best_dev_accuracy = dev_accuracy
                 cache_storage.save_best_snapshot(
                     model, iterations, dev_accuracy, dev_loss.item())
-            else:
+            elif dev_accuracy < best_dev_accuracy:
+                print('Reducing learning rate...')
                 current_learning_rate /= 5.0
 
                 for g in optimizer.param_groups:
@@ -158,4 +165,12 @@ while current_learning_rate > 1e-5 and epoch < parameters_helper.max_epochs:
 
     epoch += 1
 
-plot_helper.save_plot(f'results/{parameters_helper.encoding_model}/result-final.png')
+plot_helper.save_plot(
+    f'results/{parameters_helper.encoding_model}/result-final.png')
+
+# dev_accuracies = plot_helper.get_dev_accuracies()
+# dev_accuracies_sum = np.sum(dev_accuracies)
+# macro_accuracy =  dev_accuracies_sum / len(dev_accuracies)
+# micro_accuracy = dev_accuracies_sum / dev_split_size
+
+# print(f'Macro accuracy: {}')

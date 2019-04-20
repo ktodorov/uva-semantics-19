@@ -26,6 +26,9 @@ class PlotHelper():
         self.dev_accuracies.append(dev_accuracy)
         self.dev_losses.append(dev_loss)
 
+    def get_dev_accuracies(self):
+        return self.dev_accuracies
+
     def update_plot(self):
         self.train_steps_accuracy = np.arange(len(self.train_accuracies))
         self.dev_steps_accuracy = np.linspace(
