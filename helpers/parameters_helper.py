@@ -8,6 +8,7 @@ DEFAULT_BATCH_SIZE = 64
 DEFAULT_MAX_EPOCHS = 100
 DEFAULT_LEARNING_RATE = 0.0001
 DEFAULT_ENCODING_MODEL = 'mean'
+DEFAULT_WEIGHT_DECAY = 0.01
 
 class ParametersHelper():
 
@@ -20,6 +21,7 @@ class ParametersHelper():
         self._max_epochs = DEFAULT_MAX_EPOCHS
         self._learning_rate = DEFAULT_LEARNING_RATE
         self._encoding_model = DEFAULT_ENCODING_MODEL
+        self._weight_decay = DEFAULT_WEIGHT_DECAY
 
         self.FLAGS = None
 
@@ -42,6 +44,8 @@ class ParametersHelper():
                             help='Learning rate')
         parser.add_argument('--encoding_model', type=str, default=DEFAULT_ENCODING_MODEL,
                             help="Model type for encoding sentences. Choose from 'mean', 'uni-lstm', 'bi-lstm' and 'bi-lstm-max-pool'")
+        parser.add_argument('--weight_decay', type=float, default=DEFAULT_WEIGHT_DECAY,
+                            help="Weight decay for the optimizer")
 
         self.FLAGS, _ = parser.parse_known_args()
 
@@ -53,6 +57,7 @@ class ParametersHelper():
         self._max_epochs = self.FLAGS.max_epochs
         self._learning_rate = self.FLAGS.learning_rate
         self._encoding_model = self.FLAGS.encoding_model
+        self._weight_decay = self.FLAGS.weight_decay
 
     def print_arguments(self):
         print("Arguments:")
@@ -92,3 +97,7 @@ class ParametersHelper():
     @property
     def encoding_model(self):
         return self._encoding_model
+
+    @property
+    def weight_decay(self):
+        return self._weight_decay

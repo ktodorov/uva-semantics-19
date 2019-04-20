@@ -7,16 +7,16 @@ import torch
 
 class CacheStorage():
     def __init__(self, encoding_model: str):
-        self.save_path = f'results\\{encoding_model}'
+        self.save_path = f'results/{encoding_model}/'
         
         self.validate_folder(self.save_path)
 
         self.snapshot_prefix = os.path.join(self.save_path, 'snapshot')
-        self.snapshot_template = '_acc_{:.4f}_loss_{:.6f}_iter_{}_model.pt'
+        self.snapshot_template = '_acc_{:.4f}_loss_{:.6f}_iter_{}_model{}.pt'
 
         self.best_snapshot_prefix = os.path.join(
             self.save_path, 'best_snapshot')
-        self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model.pt'
+        self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model{}.pt'
         self.encoding_model = encoding_model
 
         pass
@@ -37,9 +37,15 @@ class CacheStorage():
 
         snapshot_path = self.snapshot_prefix + \
             self.snapshot_template.format(
-                train_accuracy, train_loss, iteration)
+                train_accuracy, train_loss, iteration, '')
+                
+        snapshot_encoder_path = self.snapshot_prefix + \
+            self.snapshot_template.format(
+                train_accuracy, train_loss, iteration, '.enc')
 
         torch.save(model, snapshot_path)
+        torch.save(model.encoder.state_dict(), snapshot_encoder_path)
+
         for f in glob.glob(self.snapshot_prefix + '*'):
             if f != snapshot_path:
                 os.remove(f)
@@ -50,12 +56,19 @@ class CacheStorage():
             iteration: int,
             dev_accuracy: float,
             dev_loss: float):
+
         snapshot_path = self.best_snapshot_prefix + \
             self.best_snapshot_template.format(
-                dev_accuracy, dev_loss, iteration)
+                dev_accuracy, dev_loss, iteration, '')
+                
+        snapshot_encoder_path = self.best_snapshot_prefix + \
+            self.snapshot_template.format(
+                dev_accuracy, dev_loss, iteration, '.enc')
 
         # save model, delete previous 'best_snapshot' files
         torch.save(model, snapshot_path)
+        torch.save(model.encoder.state_dict(), snapshot_encoder_path)
+
         for f in glob.glob(self.best_snapshot_prefix + '*'):
             if f != snapshot_path:
                 os.remove(f)

@@ -32,9 +32,9 @@ class DataStorage:
 
         return self.text_field.vocab, self.label_field.vocab
 
-    def get_dataset_iterators(self, batch_size):
+    def get_dataset_iterators(self, batch_size, device):
         train_iterator, dev_iterator, test_iterator = data.BucketIterator.splits(
-            (self.train_split, self.dev_split, self.test_split), batch_size=batch_size)  # , device=device)
+            (self.train_split, self.dev_split, self.test_split), batch_size=batch_size, device=device)
 
         return train_iterator, dev_iterator, test_iterator
 
