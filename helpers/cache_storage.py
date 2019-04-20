@@ -7,8 +7,7 @@ import torch
 
 class CacheStorage():
     def __init__(self, encoding_model: str):
-        self.save_path = f'results/{encoding_model}/'
-        
+        self.save_path = os.path.join('results', encoding_model)
         self.validate_folder(self.save_path)
 
         self.snapshot_prefix = os.path.join(self.save_path, 'snapshot')
@@ -62,7 +61,7 @@ class CacheStorage():
                 dev_accuracy, dev_loss, iteration, '')
                 
         snapshot_encoder_path = self.best_snapshot_prefix + \
-            self.snapshot_template.format(
+            self.best_snapshot_template.format(
                 dev_accuracy, dev_loss, iteration, '.enc')
 
         # save model
