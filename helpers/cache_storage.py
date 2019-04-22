@@ -6,17 +6,18 @@ import torch
 
 
 class CacheStorage():
-    def __init__(self, encoding_model: str):
-        self.save_path = os.path.join('results', encoding_model)
-        self.validate_folder(self.save_path)
+    def __init__(self, encoding_model: str = None):
+        if encoding_model:
+            self.save_path = os.path.join('results', encoding_model)
+            self.validate_folder(self.save_path)
 
-        self.snapshot_prefix = os.path.join(self.save_path, 'snapshot')
-        self.snapshot_template = '_acc_{:.4f}_loss_{:.6f}_iter_{}_model{}.pt'
+            self.snapshot_prefix = os.path.join(self.save_path, 'snapshot')
+            self.snapshot_template = '_acc_{:.4f}_loss_{:.6f}_iter_{}_model{}.pt'
 
-        self.best_snapshot_prefix = os.path.join(
-            self.save_path, 'best_snapshot')
-        self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model{}.pt'
-        self.encoding_model = encoding_model
+            self.best_snapshot_prefix = os.path.join(
+                self.save_path, 'best_snapshot')
+            self.best_snapshot_template = '_devacc_{}_devloss_{}__iter_{}_model{}.pt'
+            self.encoding_model = encoding_model
 
     def load_model_snapshot(self, path: str):
         if not path:
