@@ -2,7 +2,7 @@ import time
 
 
 class StatisticsHelper():
-    def __init__(self, train_batches_size: int):
+    def __init__(self):
         self.header = '  Time Epoch Iteration Progress    (%Epoch)   Loss   Dev/Loss     Accuracy  Dev/Accuracy'
         self.dev_log_template = ' '.join(
             '{:>6.0f},{:>5.0f},{:>9.0f},{:>5.0f}/{:<5.0f} {:>7.0f}%,{:>8.6f},{:8.6f},{:12.4f},{:12.4f}'
@@ -11,7 +11,6 @@ class StatisticsHelper():
             '{:>6.0f},{:>5.0f},{:>9.0f},{:>5.0f}/{:<5.0f} {:>7.0f}%,{:>8.6f},{},{:12.4f},{}'.split(','))
 
         self.start_time = time.time()
-        self.train_batches_size = train_batches_size
 
     def print_header(self):
         print(self.header)
@@ -23,6 +22,7 @@ class StatisticsHelper():
             current_batch_id: int,
             train_loss: float,
             train_accuracy: float,
+            train_batches_size: int,
             dev_loss: float = None,
             dev_accuracy: float = None):
 
@@ -33,8 +33,8 @@ class StatisticsHelper():
                     epoch,
                     iteration,
                     1 + current_batch_id,
-                    self.train_batches_size,
-                    100. * (1+current_batch_id) / self.train_batches_size,
+                    train_batches_size,
+                    100. * (1+current_batch_id) / train_batches_size,
                     train_loss,
                     dev_loss,
                     train_accuracy,
@@ -46,8 +46,8 @@ class StatisticsHelper():
                     epoch,
                     iteration,
                     1 + current_batch_id,
-                    self.train_batches_size,
-                    100. * (1+current_batch_id) / self.train_batches_size,
+                    train_batches_size,
+                    100. * (1+current_batch_id) / train_batches_size,
                     train_loss,
                     ' '*8,
                     train_accuracy,
