@@ -3,13 +3,10 @@ import torch.nn as nn
 
 from encoders.base_encoder import BaseEncoder
 
-
 class SNLIClassifier(nn.Module):
 
     def __init__(
             self,
-            n_embed: int,
-            d_out: int,
             encoder: BaseEncoder,
             vocabulary=None,
             n_hidden: int = 512,
@@ -17,16 +14,13 @@ class SNLIClassifier(nn.Module):
 
         super(SNLIClassifier, self).__init__()
 
-        self.embed = nn.Embedding(n_embed, d_out)
-
-        if vocabulary:
-            self.embed.weight.data.copy_(vocabulary.vectors)
-
+        self.embed = nn.Embedding.from_pretrained(vocabulary.vectors)
+        self.embed.requires_grad = False
+        
         self.encoder = encoder
 
         self.out = nn.Sequential(
             nn.Linear(encoder.input_dimensions, n_hidden),
-            nn.Tanh(),
             nn.Linear(n_hidden, n_classes))
 
     def forward(self, batch):
