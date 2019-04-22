@@ -109,3 +109,8 @@ venv.bak/
 /data/glove/
 /.data/
 /.vector_cache/
+/senteval/data/downstream/*
+!/senteval/data/downstream/get_transfer_data.bash
+!/senteval/data/downstream/tokenizer.sed
+/results/*/best_snapshot_*
+/results/*/snapshot_*
