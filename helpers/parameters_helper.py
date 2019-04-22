@@ -2,7 +2,7 @@ import argparse
 
 DEFAULT_SAVE_EVERY_STEPS = 1000
 DEFAULT_LOG_EVERY_STEPS = 50
-DEFAULT_EVALUATE_EVERY_STEPS = 1000
+DEFAULT_MAX_SAMPLES = None
 DEFAULT_SNAPSHOT_LOCATION = None
 DEFAULT_BATCH_SIZE = 64
 DEFAULT_MAX_EPOCHS = 100
@@ -15,7 +15,7 @@ class ParametersHelper():
     def __init__(self):
         self._save_every_steps = DEFAULT_SAVE_EVERY_STEPS
         self._log_every_steps = DEFAULT_LOG_EVERY_STEPS
-        self._evaluate_every_steps = DEFAULT_EVALUATE_EVERY_STEPS
+        self._max_samples = DEFAULT_MAX_SAMPLES
         self._snapshot_location = DEFAULT_SNAPSHOT_LOCATION
         self._batch_size = DEFAULT_BATCH_SIZE
         self._max_epochs = DEFAULT_MAX_EPOCHS
@@ -32,8 +32,8 @@ class ParametersHelper():
                             help='Number of steps after which the model will be saved')
         parser.add_argument('--log_every_steps', type=int, default=DEFAULT_LOG_EVERY_STEPS,
                             help='Number of steps after which the current results will be printed')
-        parser.add_argument('--evaluate_every_steps', type=int, default=DEFAULT_EVALUATE_EVERY_STEPS,
-                            help='Number of steps after which the current model will be evaluated')
+        parser.add_argument('--max_samples', type=int, default=DEFAULT_MAX_SAMPLES,
+                            help='Number of samples to get from the datasets. If None, all samples will be used')
         parser.add_argument('--snapshot_location', type=str, default=DEFAULT_SNAPSHOT_LOCATION,
                             help='Snapshot location from where to load the model')
         parser.add_argument('--batch_size', type=int, default=DEFAULT_BATCH_SIZE,
@@ -51,7 +51,7 @@ class ParametersHelper():
 
         self._save_every_steps = self.FLAGS.save_every_steps
         self._log_every_steps = self.FLAGS.log_every_steps
-        self._evaluate_every_steps = self.FLAGS.evaluate_every_steps
+        self._max_samples = self.FLAGS.max_samples
         self._snapshot_location = self.FLAGS.snapshot_location
         self._batch_size = self.FLAGS.batch_size
         self._max_epochs = self.FLAGS.max_epochs
@@ -75,8 +75,8 @@ class ParametersHelper():
         return self._log_every_steps
 
     @property
-    def evaluate_every_steps(self):
-        return self._evaluate_every_steps
+    def max_samples(self):
+        return self._max_samples
 
     @property
     def snapshot_location(self):
