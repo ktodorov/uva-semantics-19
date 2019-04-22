@@ -1,32 +1,14 @@
-\documentclass{article}
+\documentclass[8pt]{article}
 
-
-\usepackage[final]{neurips_2018}
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[english]{babel}
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
-\usepackage{natbib}
-
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{bm}
-\usepackage{bbm}
 
 \usepackage[pdftex]{graphicx}     
 \usepackage{float}
+\usepackage{titlesec}
 
-\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
-
-\newcommand{\softmax}{\frac{e^{\tilde{x}_i^{(N)}}}{\sum_k^{d_N} e^{\tilde{x}_k^{(N)}}}}
-
-\bibliographystyle{unsrtnat}
+\titleformat*{\section}{\large\bfseries}
 
 \title{
   Learning sentence representations from natural language inference data}
@@ -36,24 +18,49 @@
   Student No. 12402559 \\
   Statistical Methods for Natural Language Semantics\\
   University of Amsterdam\\
-  \texttt{konstantin.todorov@student.uva.nl}
 }
 
 \begin{document}
 
 \maketitle
 
-Github repository link: https://github.com/ktodorov/uva-semantics-19
+\textbf{Github repository link - } https://github.com/ktodorov/uva-semantics-19\\
+
+For all models we can observe that hypotheses where almost all of the sentence 
+is similar to the premise the model predicts correctly as entailment but if
+the differences in the hypothesis become more complex then the models fail
+to predict correctly
 
 \section{Mean encoder}
 
+\begin{itemize}
+  \item test macro accuracy: 61.4346\%
+  
+  \item test micro accuracy: 61.4413\%
+\end{itemize}
 
 \section{Uni-LSTM encoder}
 
+\begin{itemize}
+  \item test macro accuracy: 33.7865\%
+  
+  \item test micro accuracy: 33.7438\%
+\end{itemize}
 
 \section{Bi-LSTM encoder}
 
+\begin{itemize}
+  \item test macro accuracy: \%
+  
+  \item test micro accuracy: \%
+\end{itemize}
 
 \section{Bi-LSTM with max-pooling encoder}
+
+\begin{itemize}
+  \item test macro accuracy: \%
+  
+  \item test micro accuracy: \%
+\end{itemize}
 
 \end{document}
