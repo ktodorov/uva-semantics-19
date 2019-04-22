@@ -12,24 +12,23 @@ from encoders.encoding_helper import EncodingHelper
 
 from helpers.cache_storage import CacheStorage
 from helpers.data_storage import DataStorage
-from helpers.parameters_helper import ParametersHelper
-
-from snli_classifier import SNLIClassifier
 
 import senteval
 import time
 
 # Create dictionary
 PATH_TO_DATA = 'senteval/data/'
-PATH_TO_GLOVE = '.vector_cache/glove.840B.300d.txt.pt'
+PATH_TO_GLOVE = 'data/glove/glove.840B.300d.txt'
 MODEL_PATH = 'results/uni-lstm/best_snapshot_devacc_34.52150974025974_devloss_1.0959851741790771__iter_25752_model.pt'
 
 assert os.path.isfile(MODEL_PATH) and os.path.isfile(PATH_TO_GLOVE), \
-    'Set MODEL and GloVe PATHs'
+    'Model and/or GloVe path is incorrect'
 
 glove = torchtext.vocab.GloVe()
 
-def create_dictionary(sentences):
+# Create dictionary
+def create_dictionary(sentences, threshold=0):
+    """function that creates a dictionary, stollen form SentEval"""
     words = {}
     for s in sentences:
         for word in s:
@@ -39,8 +38,7 @@ def create_dictionary(sentences):
     words['</s>'] = 1e9 + 3
     words['<p>'] = 1e9 + 2
 
-    # inverse sort
-    sorted_words = sorted(words.items(), key=lambda x: -x[1])
+    sorted_words = sorted(words.items(), key=lambda x: -x[1])  # inverse sort
     id2word = []
     word2id = {}
     for i, (w, _) in enumerate(sorted_words):
@@ -49,36 +47,45 @@ def create_dictionary(sentences):
 
     return id2word, word2id
 
-def prepare(params, samples):
-    # params.inputs.build_vocab(samples)
-    # params.inputs.vocab.load_vectors('glove.840B.300d')
-    params.id2word, params.word2id = create_dictionary(samples)
-    # set glove as the embedding model
-    params.word_vec = glove
-    params.wvec_dim = 300
+# Get word vectors from vocabulary (glove, word2vec, fasttext ..)
+def get_wordvec(path_to_vec, word2id):
+    """function that returns the embeddings, stollen form SentEval"""
+    word_vec = {}
 
+    with io.open(path_to_vec, 'r', encoding='utf-8') as f:
+        # if word2vec or fasttext file : skip first line "next(f)"
+        for line in f:
+            word, vec = line.split(' ', 1)
+            if word in word2id:
+                word_vec[word] = np.fromstring(vec, sep=' ')
+
+    return word_vec
+
+def prepare(params, samples):
+    _, params.word2id = create_dictionary(samples)
+    params.word_vec = get_wordvec(PATH_TO_GLOVE, params.word2id)
+    params.wvec_dim = 300
+    return
 
 def batcher(params, batch):
-    sentences = []
-    for s in batch:
-        sentence = params.inputs.preprocess(s)
-        sentences.append(sentence)
-
-    sentences = params.inputs.process(sentences, train=True, device=0)
-    params.hbmp = params.hbmp.cuda()
-    emb = params.hbmp.forward(sentences.cuda())
+    batch = [sent if sent != [] else ['.'] for sent in batch]
     embeddings = []
 
-    for sent in emb:
-        sent = sent.cpu()
-        embeddings.append(sent.data.cpu().numpy())
+    for sent in batch:
+        sentvec = []
+        for word in sent:
+            if word in params.word_vec:
+                sentvec.append(params.word_vec[word])
+        if not sentvec:
+            vec = np.zeros(params.wvec_dim)
+            sentvec.append(vec)
+        sentvec = np.mean(sentvec, 0)
+        embeddings.append(sentvec)
+
     embeddings = np.vstack(embeddings)
     return embeddings
 
 # Load input arguments
-parameters_helper = ParametersHelper()
-parameters_helper.load_arguments()
-
 device = torch.device("cuda")
 
 # Check if we can get the cached model. If not, raise an exception
@@ -89,14 +96,7 @@ model = cache_storage.load_model_snapshot(MODEL_PATH)# parameters_helper.snapsho
 if not model:
     raise Exception('Model not found!')
 
-print('Loaded model')
-
-# Load the data sets and the vocabulary
-print('Loading data...')
-data_storage = DataStorage()
-
-token_vocabulary, _ = data_storage.get_vocabulary()
-test_split_size = data_storage.get_test_split_size()
+print('Loaded')
 
 print('Starting evaluation...')
 
@@ -105,8 +105,8 @@ print('Starting evaluation...')
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
 
 params_senteval['classifier'] = {'nhid': 0, 
-                'optim': 'rmsprop', 
-                'batch_size': 128,
+                'optim': 'adam', 
+                'batch_size': 64,
                 'tenacity': 3,
                 'epoch_size': 2}
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
 
     # define transfer tasks
-    transfer_tasks = 'MR'
+    transfer_tasks = [ 'MR', 'CR', 'SUBJ', 'MPQA', 'TREC', 'SST']
     #  ['CR', 'MR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
     #                   'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'ImageCaptionRetrieval',
     #                   'STS12', 'STS13', 'STS14', 'STS15', 'STS16',
