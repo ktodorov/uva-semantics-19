@@ -29,9 +29,7 @@ device = torch.device("cuda")
 # Load the data sets and the vocabulary
 print('Loading data...')
 data_storage = DataStorage(parameters_helper.max_samples)
-
 token_vocabulary, _ = data_storage.get_vocabulary()
-# train_iterator, dev_iterator, test_iterator = data_storage.get_dataset_iterators(parameters_helper.batch_size, device)
 dev_split_size = data_storage.get_dev_split_size()
 
 # Check if we can get a cached model. If not, create a new one
@@ -52,7 +50,7 @@ optimizer = optim.SGD(
     weight_decay=parameters_helper.weight_decay)
 
 iterations = 0
-best_dev_accuracy = -1
+best_dev_macro_accuracy = -1
 
 print('Starting training...')
 
@@ -163,11 +161,11 @@ while current_learning_rate > minimum_learning_rate and epoch < parameters_helpe
 
     # Update best dev set accuracy if we have
     # found a model with a better dev set accuracy
-    if dev_accuracy > best_dev_accuracy:
-        best_dev_accuracy = dev_accuracy
+    if dev_macro_accuracy > best_dev_macro_accuracy:
+        best_dev_macro_accuracy = dev_macro_accuracy
         cache_storage.save_best_snapshot(
-            model, iterations, dev_accuracy, dev_loss.item())
-    elif dev_accuracy < best_dev_accuracy:
+            model, iterations, dev_macro_accuracy, dev_loss.item())
+    elif dev_macro_accuracy < best_dev_macro_accuracy:
         print('Reducing learning rate...')
         current_learning_rate /= 5.0
         if current_learning_rate < minimum_learning_rate:
