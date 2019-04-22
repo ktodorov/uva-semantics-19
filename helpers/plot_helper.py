@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import math
+import pickle
 
 
 class PlotHelper():
     def __init__(self):
-        self.train_steps_accuracy = []
-        self.dev_steps_accuracy = []
-        self.train_steps_loss = []
-        self.dev_steps_loss = []
+        self.train_steps = []
+        self.dev_steps = []
+        self.progress_figure = None
 
         self.train_accuracies = []
         self.train_losses = []
@@ -30,39 +31,38 @@ class PlotHelper():
         return self.dev_accuracies
 
     def update_plot(self):
-        self.train_steps_accuracy = np.arange(len(self.train_accuracies))
-        self.dev_steps_accuracy = np.linspace(
-            0, len(self.train_accuracies), len(self.dev_accuracies))
-
-        self.train_steps_loss = self.train_steps_accuracy.copy()
-        self.dev_steps_loss = self.dev_steps_accuracy.copy()
+        self.train_steps = np.linspace(
+            0, len(self.dev_accuracies), len(self.train_accuracies))
+        self.dev_steps = np.linspace(
+            0, len(self.dev_accuracies), len(self.dev_accuracies))
 
         self.refresh_plot()
 
     def refresh_plot(self):
-        plt.figure(1)
+        plt.clf()
         plt.subplot(121)
-        plt.plot(self.train_steps_accuracy,
+        plt.plot(self.train_steps,
                  self.train_accuracies, color='skyblue', label='train accuracy')
-        plt.plot(self.dev_steps_accuracy, self.dev_accuracies,
+        plt.plot(self.dev_steps, self.dev_accuracies,
                  color='tomato', label='dev accuracy')
 
         plt.subplot(122)
-        plt.plot(self.train_steps_loss,
+        plt.plot(self.train_steps,
                  self.train_losses, color='skyblue', label='train loss')
-        plt.plot(self.dev_steps_loss, self.dev_losses,
+        plt.plot(self.dev_steps, self.dev_losses,
                  color='tomato', label='dev loss')
         plt.draw()
         plt.pause(0.001)
-        
+
     def save_plot(self, path):
-        plt.savefig(path)
+        with open(path, 'wb') as file:
+            pickle.dump(self.progress_figure, file)
 
     def _initialize_plot(self):
-        plt.figure(1)
+        self.progress_figure = plt.figure(1, figsize=(12, 6), facecolor='w', edgecolor='k')
         plt.subplot(121)
         plt.title('accuracies')
-        plt.xlabel('steps')
+        plt.xlabel('epochs')
         plt.ylabel('accuracy')
         plt.plot([],
                  [], color='skyblue', label='train accuracy')
@@ -71,7 +71,7 @@ class PlotHelper():
 
         plt.subplot(122)
         plt.title('losses')
-        plt.xlabel('steps')
+        plt.xlabel('epochs')
         plt.ylabel('loss')
         plt.plot([],
                  [], color='skyblue', label='train loss')
@@ -81,4 +81,5 @@ class PlotHelper():
         plt.pause(0.001)
 
         plt.ion()
+        self.progress_figure.show()
         plt.show()
