@@ -19,8 +19,8 @@ import senteval
 import time
 
 PATH_TO_DATA = 'senteval/data/'
-DEFAULT_GLOVE_PATH = 'data/glove/glove.840B.300d.txt'
 DEFAULT_MODEL_PATH = 'results/bi-lstm-max-pool/best_snapshot_devacc_37.14123376623377_devloss_1.1007678508758545__iter_34336_model.pt'
+# DEFAULT_MODEL_PATH = 'results/mean/best_snapshot_devacc_60.797077922077925_devloss_0.9943482875823975__iter_25752_model.pt'
 DEFAULT_EVAL_MODE = 'snli'
 
 # Create dictionary
@@ -58,29 +58,27 @@ def get_wordvec(path_to_vec, word2id):
 
 def prepare(params, samples):
     _, params.word2id = create_dictionary(samples)
-    params.word_vec = get_wordvec(DEFAULT_GLOVE_PATH, params.word2id)
+    params.word_vec = glove
     params.wvec_dim = 300
     return
 
 
-def batcher(params, batch):
+def batcher(params, batch): 
     batch = [sent if sent != [] else ['.'] for sent in batch]
-    embeddings = []
 
-    for sent in batch:
-        sentvec = []
-        for word in sent:
-            if word in params.word_vec:
-                sentvec.append(params.word_vec[word])
-        if not sentvec:
-            vec = np.zeros(params.wvec_dim)
-            sentvec.append(vec)
-        sentvec = np.mean(sentvec, 0)
-        embeddings.append(sentvec)
+    batch_size = len(batch)
+    tokens_length = [len(tok) for tok in batch]
 
-    embeddings = np.vstack(embeddings)
-    return embeddings
+    words_tensor = torch.zeros(max(tokens_length), batch_size, 300)
+    word_lengths = torch.tensor(tokens_length)
 
+    for n in range(batch_size):
+        for l, word in enumerate(batch[n]):
+            words_tensor[l, n] = params.word_vec[word]
+
+    embeddings = params.infersent.forward(words_tensor.cuda(), word_lengths.cuda())
+
+    return embeddings.cpu().detach().numpy()
 
 def perform_senteval(model, device):
 
@@ -154,7 +152,7 @@ def main():
     print('Loading model...', end='')
 
     assert os.path.isfile(
-        FLAGS.model_path), 'Model and/or GloVe path is incorrect'
+        FLAGS.model_path), 'Model path is incorrect'
 
     model = cache_storage.load_model_snapshot(FLAGS.model_path)
     if not model:
@@ -180,5 +178,8 @@ if __name__ == "__main__":
                         help='type of evaluation: "snli" or "senteval"')
 
     FLAGS, unparsed = parser.parse_known_args()
+
+    if FLAGS.eval_mode == 'senteval':
+        glove = torchtext.vocab.GloVe()
 
     main()
