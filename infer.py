@@ -6,6 +6,7 @@ import torchtext
 import torchtext.data
 import os
 import io
+import argparse 
 
 from encoders.encoding_helper import EncodingHelper
 
@@ -14,7 +15,7 @@ from helpers.data_storage import DataStorage
 
 from inference_model import InferenceModel
 
-MODEL_PATH = 'results/mean/best_snapshot_devacc_60.797077922077925_devloss_0.9943482875823975__iter_25752_model.pt'
+DEFAULT_MODEL_PATH = 'results/mean/best_snapshot_devacc_60.797077922077925_devloss_0.9943482875823975__iter_25752_model.pt'
 
 def transform_sentence(sentence, w2i_dict, device):
     sentence = word_tokenize(sentence)
@@ -72,10 +73,18 @@ def calculate_inference(model, token_vocabulary, label_dictionary, device, premi
     print(
         f"The premise {label_dictionary[model_prediction.argmax().item()]} the hypothesis")
 
-device, model, token_vocabulary, label_dictionary = initialize_data(MODEL_PATH)
+if __name__ == "__main__":
+    # Command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_path', type=str, default=DEFAULT_MODEL_PATH,
+                        help='Path to the model file')
 
-premise = input('Enter premise:\n')
-hypothesis = input('Enter hypothesis:\n')
+    FLAGS, unparsed = parser.parse_known_args()
 
-calculate_inference(model, token_vocabulary,
-                    label_dictionary, device, premise, hypothesis)
+    device, model, token_vocabulary, label_dictionary = initialize_data(FLAGS.model_path)
+
+    premise = input('Enter premise:\n')
+    hypothesis = input('Enter hypothesis:\n')
+
+    calculate_inference(model, token_vocabulary,
+                        label_dictionary, device, premise, hypothesis)

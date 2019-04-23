@@ -20,7 +20,7 @@ import time
 
 PATH_TO_DATA = 'senteval/data/'
 DEFAULT_GLOVE_PATH = 'data/glove/glove.840B.300d.txt'
-DEFAULT_MODEL_PATH = 'results/uni-lstm/best_snapshot_devacc_34.52150974025974_devloss_1.0959851741790771__iter_25752_model.pt'
+DEFAULT_MODEL_PATH = 'results/bi-lstm-max-pool/best_snapshot_devacc_37.14123376623377_devloss_1.1007678508758545__iter_34336_model.pt'
 DEFAULT_EVAL_MODE = 'snli'
 
 # Create dictionary
