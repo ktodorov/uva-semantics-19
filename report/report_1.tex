@@ -1,4 +1,4 @@
-\documentclass[8pt]{article}
+\documentclass[6pt]{article}
 
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
@@ -8,23 +8,23 @@
 \usepackage{float}
 \usepackage{titlesec}
 
-\titleformat*{\section}{\large\bfseries}
-
-\title{
-  Learning sentence representations from natural language inference data}
-
-\author{%
-  Konstantin Todorov \\
-  Student No. 12402559 \\
-  Statistical Methods for Natural Language Semantics\\
-  University of Amsterdam\\
-}
+\titleformat*{\section}{\small\bfseries}
 
 \begin{document}
 
-\maketitle
+% \maketitle
+\begin{center}
+  \large 
+  \textbf{Learning sentence representations from natural language inference data}
+  
+  \normalsize Konstantin Todorov, No. 12402559 \\
+  Statistical Methods for Natural Language Semantics\\
+  University of Amsterdam\\
+\end{center}
 
 \textbf{Github repository link - } https://github.com/ktodorov/uva-semantics-19\\
+
+\vspace{3\baselineskip}
 
 For all models we can observe that hypotheses where almost all of the sentence 
 is similar to the premise the model predicts correctly as entailment but if
@@ -61,6 +61,28 @@ to predict correctly
   \item test macro accuracy: 37.6724\%
   
   \item test micro accuracy: 37.6832\%
+  
+  \item SentEval
+
+  \begin{center}
+    \begin{tabular}{| c |c | c | c | c|} 
+        \hline
+        & \textbf{devacc} & \textbf{acc} & \textbf{ndev} & \textbf{ntest} \\ 
+        \hline
+        \textbf{MR} & 77.87 & 76.63 & 10685 & 10685 \\ 
+        \hline
+        \textbf{CR} & 80.17 & 78.47 & 3775 & 3775 \\
+        \hline
+        \textbf{SUBJ} & 91.16 & 91.14 & 10021 & 10021 \\
+        \hline
+        \textbf{MPQA} & 87.51 & 87.57 & 10606 & 10606 \\
+        \hline
+        \textbf{TREC} & 73.59 & 82.6 & 5452 & 500 \\
+        \hline
+        \textbf{SST2} & 79.59 & 79.68 & 872 & 1821 \\
+        \hline
+      \end{tabular}
+    \end{center}
 \end{itemize}
 
 \end{document}
