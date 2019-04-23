@@ -24,7 +24,7 @@
 
 \textbf{Github repository link - } https://github.com/ktodorov/uva-semantics-19\\
 
-\vspace{2\baselineskip}
+\vspace{1\baselineskip}
 
 For all models we can observe that hypotheses where almost all of the sentence 
 is similar to the premise the model predicts correctly as entailment but if
@@ -57,9 +57,66 @@ to predict correctly
         \hline
         \textbf{SST2} & 79.59 & 79.68 & 872 & 1821 \\
         \hline
+        \textbf{MRPC} & 73.5 & 73.04 & 4076 & 1725 \\
+        \hline
       \end{tabular}
     \end{center}
 \end{itemize}
+
+% {  
+%    'deft-forum':{  
+%       'pearson':(0.10614252529990185,
+%       0.02433967284231164      ),
+%       'spearman':SpearmanrResult(correlation=0.25221705591763377,
+%       pvalue=5.848443081080422e-08),
+%       'nsamples':450
+%    },
+%    'deft-news':{  
+%       'pearson':(0.5613185278422829,
+%       2.646342157885347e-26      ),
+%       'spearman':SpearmanrResult(correlation=0.5687347715166986,
+%       pvalue=4.172358748662268e-27),
+%       'nsamples':300
+%    },
+%    'headlines':{  
+%       'pearson':(0.4379333513210643,
+%       1.7217396186027015e-36      ),
+%       'spearman':SpearmanrResult(correlation=0.44064951845328976,
+%       pvalue=5.662661537200817e-37),
+%       'nsamples':750
+%    },
+%    'images':{  
+%       'pearson':(0.4208953287757699,
+%       1.4702273154142545e-33      ),
+%       'spearman':SpearmanrResult(correlation=0.45905350353195695,
+%       pvalue=2.3077385961213547e-40),
+%       'nsamples':750
+%    },
+%    'OnWN':{  
+%       'pearson':(0.4637601825924514,
+%       2.9007064941307373e-41      ),
+%       'spearman':SpearmanrResult(correlation=0.5207056013604293,
+%       pvalue=2.3816261471973666e-53),
+%       'nsamples':750
+%    },
+%    'tweet-news':{  
+%       'pearson':(0.560871836590606,
+%       2.3079172473519822e-63      ),
+%       'spearman':SpearmanrResult(correlation=0.5732894470474054,
+%       pvalue=9.585354391511192e-67),
+%       'nsamples':750
+%    },
+%    'all':{  
+%       'pearson':{  
+%          'mean':0.4251536254036794,
+%          'wmean':0.43433472511934923
+%       },
+%       'spearman':{  
+%          'mean':0.4691083163045689,
+%          'wmean':0.47450444251006824
+%       }
+%    }
+% }
 \section{Uni-LSTM encoder}
 
 \begin{itemize}

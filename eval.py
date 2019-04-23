@@ -98,7 +98,7 @@ def perform_senteval(model, device):
 
     # define transfer tasks
     # We use the same as those used in the paper
-    transfer_tasks = ['MR', 'CR', 'SUBJ', 'MPQA', 'TREC', 'SST2']
+    transfer_tasks = ['MR', 'CR', 'SUBJ', 'MPQA', 'TREC', 'SST2', 'MRPC', 'STS14']
 
     results = se.eval(transfer_tasks)
     print(results)
