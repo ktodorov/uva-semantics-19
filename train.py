@@ -68,7 +68,7 @@ while current_learning_rate > minimum_learning_rate and epoch < parameters_helpe
     train_epoch_accuracies = []
 
     train_iterator, dev_iterator, test_iterator = data_storage.get_dataset_iterators(
-        parameters_helper.batch_size, device)
+        1, device)
 
     for batch_idx, batch in enumerate(train_iterator):
 
@@ -110,7 +110,7 @@ while current_learning_rate > minimum_learning_rate and epoch < parameters_helpe
         if iterations % parameters_helper.log_every_steps == 0:
             train_micro_accuracy = calculations_helper.calculate_accuracy(
                 n_correct, n_total)
-            # plot_helper.plot_grad_flow(model.named_parameters())
+
             statistics_helper.print_train_results(
                 epoch,
                 iterations,

@@ -32,7 +32,6 @@ def initialize_data(model_path):
     cache_storage = CacheStorage()
 
     print('Loading model...', end='')
-    # parameters_helper.snapshot_location)
     model = cache_storage.load_model_snapshot(model_path)
     if not model:
         raise Exception('Model not found!')

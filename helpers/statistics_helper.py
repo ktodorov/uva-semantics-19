@@ -29,10 +29,7 @@ class StatisticsHelper():
             self.log_template.format(
                 time.time()-self.start_time,
                 epoch,
-                iteration,
-                1 + current_batch_id,
-                train_batches_size,
-                100. * (1+current_batch_id) / train_batches_size,
+                iteration,b
                 train_loss,
                 '-'*8,
                 train_micro_accuracy,
